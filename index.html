@@ -1,0 +1,91 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>My Personal Pomodoro Timer</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 40px;
+      background: #f4f4f4;
+    }
+    h1 {
+      margin-bottom: 20px;
+    }
+    #timer {
+      font-size: 4em;
+      margin: 20px 0;
+    }
+    button {
+      font-size: 1.2em;
+      margin: 10px;
+      padding: 10px 20px;
+      cursor: pointer;
+    }
+    .status {
+      font-size: 1.2em;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <h1>🍅 My Pomodoro Timer</h1>
+  <div id="timer">25:00</div>
+  <button onclick="startTimer()">Start</button>
+  <button onclick="resetTimer()">Reset</button>
+  <div class="status" id="status">Session: Work</div>
+
+  <script>
+    let duration = 25 * 60;
+    let breakTime = 5 * 60;
+    let longBreak = 15 * 60;
+    let current = duration;
+    let timer;
+    let session = 'Work';
+    let cycle = 0;
+
+    function updateDisplay() {
+      let mins = Math.floor(current / 60);
+      let secs = current % 60;
+      document.getElementById("timer").textContent = \`\${String(mins).padStart(2, '0')}:\${String(secs).padStart(2, '0')}\`;
+    }
+
+    function startTimer() {
+      if (timer) return;
+      timer = setInterval(() => {
+        current--;
+        updateDisplay();
+        if (current <= 0) {
+          clearInterval(timer);
+          timer = null;
+          cycle++;
+          if (session === 'Work') {
+            session = (cycle % 4 === 0) ? 'Long Break' : 'Short Break';
+            current = (session === 'Long Break') ? longBreak : breakTime;
+          } else {
+            session = 'Work';
+            current = duration;
+          }
+          document.getElementById("status").textContent = 'Session: ' + session;
+          startTimer();
+        }
+      }, 1000);
+    }
+
+    function resetTimer() {
+      clearInterval(timer);
+      timer = null;
+      session = 'Work';
+      current = duration;
+      cycle = 0;
+      updateDisplay();
+      document.getElementById("status").textContent = 'Session: Work';
+    }
+
+    updateDisplay();
+  </script>
+</body>
+</html>

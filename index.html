@@ -2,18 +2,15 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>My Personal Pomodoro Timer</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <title>Pomodoro Timer</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
     body {
       font-family: Arial, sans-serif;
       text-align: center;
       padding: 40px;
-      background: #f4f4f4;
-    }
-    h1 {
-      margin-bottom: 20px;
+      background: #fff5f5;
     }
     #timer {
       font-size: 4em;
@@ -23,7 +20,6 @@
       font-size: 1.2em;
       margin: 10px;
       padding: 10px 20px;
-      cursor: pointer;
     }
     .status {
       font-size: 1.2em;
@@ -32,58 +28,68 @@
   </style>
 </head>
 <body>
-  <h1>🍅 My Pomodoro Timer</h1>
+  <h1>🍅 Pomodoro Timer</h1>
   <div id="timer">25:00</div>
-  <button onclick="startTimer()">Start</button>
-  <button onclick="resetTimer()">Reset</button>
+  <button id="startButton">Start</button>
+  <button id="resetButton">Reset</button>
   <div class="status" id="status">Session: Work</div>
 
   <script>
-    let duration = 25 * 60;
-    let breakTime = 5 * 60;
-    let longBreak = 15 * 60;
-    let current = duration;
-    let timer;
-    let session = 'Work';
-    let cycle = 0;
+    const timerDisplay = document.getElementById("timer");
+    const startButton = document.getElementById("startButton");
+    const resetButton = document.getElementById("resetButton");
+    const statusDisplay = document.getElementById("status");
+
+    let workDuration = 25 * 60;
+    let breakDuration = 5 * 60;
+    let longBreakDuration = 15 * 60;
+    let currentDuration = workDuration;
+    let interval = null;
+    let session = "Work";
+    let cycleCount = 0;
 
     function updateDisplay() {
-      let mins = Math.floor(current / 60);
-      let secs = current % 60;
-      document.getElementById("timer").textContent = \`\${String(mins).padStart(2, '0')}:\${String(secs).padStart(2, '0')}\`;
+      const minutes = Math.floor(currentDuration / 60);
+      const seconds = currentDuration % 60;
+      timerDisplay.textContent = \`\${String(minutes).padStart(2, '0')}:\${String(seconds).padStart(2, '0')}\`;
     }
 
     function startTimer() {
-      if (timer) return;
-      timer = setInterval(() => {
-        current--;
-        updateDisplay();
-        if (current <= 0) {
-          clearInterval(timer);
-          timer = null;
-          cycle++;
-          if (session === 'Work') {
-            session = (cycle % 4 === 0) ? 'Long Break' : 'Short Break';
-            current = (session === 'Long Break') ? longBreak : breakTime;
+      if (interval) return;
+      interval = setInterval(() => {
+        if (currentDuration > 0) {
+          currentDuration--;
+          updateDisplay();
+        } else {
+          clearInterval(interval);
+          interval = null;
+          if (session === "Work") {
+            cycleCount++;
+            session = (cycleCount % 4 === 0) ? "Long Break" : "Break";
+            currentDuration = (session === "Long Break") ? longBreakDuration : breakDuration;
           } else {
-            session = 'Work';
-            current = duration;
+            session = "Work";
+            currentDuration = workDuration;
           }
-          document.getElementById("status").textContent = 'Session: ' + session;
-          startTimer();
+          statusDisplay.textContent = "Session: " + session;
+          updateDisplay();
+          startTimer(); // auto-start next session
         }
       }, 1000);
     }
 
     function resetTimer() {
-      clearInterval(timer);
-      timer = null;
-      session = 'Work';
-      current = duration;
-      cycle = 0;
+      clearInterval(interval);
+      interval = null;
+      session = "Work";
+      currentDuration = workDuration;
+      cycleCount = 0;
       updateDisplay();
-      document.getElementById("status").textContent = 'Session: Work';
+      statusDisplay.textContent = "Session: Work";
     }
+
+    startButton.addEventListener("click", startTimer);
+    resetButton.addEventListener("click", resetTimer);
 
     updateDisplay();
   </script>
